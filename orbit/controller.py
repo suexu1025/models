@@ -241,10 +241,11 @@ class Controller:
     _log(f"train | step: {current_step: 6d} | training until step {steps}...")
     while current_step < steps:
       # Calculates steps to run for the next train loop.
-      num_steps = min(steps - current_step, self.steps_per_loop)
-      self._train_n_steps(num_steps)
-      self._maybe_save_checkpoint()
-      current_step = self.global_step.numpy()
+      with tf.profiler.experimental.Trace('train', step_num=100, _r=1):
+        num_steps = min(steps - current_step, self.steps_per_loop)
+        self._train_n_steps(num_steps)
+        self._maybe_save_checkpoint()
+        current_step = self.global_step.numpy()
 
     if checkpoint_at_completion:
       self._maybe_save_checkpoint(check_interval=False)
